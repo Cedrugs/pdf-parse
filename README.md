@@ -1,134 +1,153 @@
-# pdf-parse
+# @sam/pdf-parse
 
-**Pure javascript cross-platform module to extract texts from PDFs.**
+**Pure JavaScript, cross-platform PDF text & metadata extraction.**  
+A maintained fork of [`pdf-parse`](https://www.npmjs.com/package/pdf-parse) with **bundled TypeScript types**, **ESM-friendly default export**, and **Node 18+** support.
 
-[![version](https://img.shields.io/npm/v/pdf-parse.svg)](https://www.npmjs.org/package/pdf-parse)
-[![downloads](https://img.shields.io/npm/dt/pdf-parse.svg)](https://www.npmjs.org/package/pdf-parse)
-[![node](https://img.shields.io/node/v/pdf-parse.svg)](https://nodejs.org/)
-[![status](https://gitlab.com/autokent/pdf-parse/badges/master/pipeline.svg)](https://gitlab.com/autokent/pdf-parse/pipelines)
+[![npm](https://img.shields.io/npm/v/%40sam%2Fpdf-parse.svg)](https://www.npmjs.com/package/@sam/pdf-parse)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 
-## Similar Packages
-* [pdf2json](https://www.npmjs.com/package/pdf2json) buggy, no support anymore, memory leak, throws non-catchable fatal errors
-* [j-pdfjson](https://www.npmjs.com/package/j-pdfjson) fork of pdf2json
-* [pdf-parser](https://github.com/dunso/pdf-parse) buggy, no tests
-* [pdfreader](https://www.npmjs.com/package/pdfreader) using pdf2json
-* [pdf-extract](https://www.npmjs.com/package/pdf-extract) not cross-platform using xpdf
+---
+
+## Why this fork?
+
+- **Types included** — ships `index.d.ts` (no need for `@types/pdf-parse`).
+- **ESM & CJS friendly** — default import works out of the box.
+- **Same API** as upstream for drop-in replacement.
+- **Node 18+** minimum for modern runtimes.
+
+> If you want to keep your existing `import pdf from "pdf-parse"` usage, see the **Install (alias)** section.
+
+---
 
 ## Installation
-`npm install pdf-parse`
- 
-## Basic Usage - Local Files
+
+### Option A — Use this scoped package directly
+```bash
+npm i @sam/pdf-parse
+# or
+pnpm add @sam/pdf-parse
+# or
+yarn add @sam/pdf-parse
+````
+
+### Option B — Keep the old import name via npm alias
+
+```bash
+npm i pdf-parse@npm:@sam/pdf-parse
+```
+
+Now `import pdf from "pdf-parse"` continues to work, but resolves to this fork.
+
+---
+
+## Basic Usage — Local Files
+
+### CommonJS
 
 ```js
 const fs = require('fs');
-const pdf = require('pdf-parse');
+const pdf = require('@sam/pdf-parse'); // or 'pdf-parse' if using the alias
 
-let dataBuffer = fs.readFileSync('path to PDF file...');
+const dataBuffer = fs.readFileSync('path/to/file.pdf');
 
-pdf(dataBuffer).then(function(data) {
-
-	// number of pages
-	console.log(data.numpages);
-	// number of rendered pages
-	console.log(data.numrender);
-	// PDF info
-	console.log(data.info);
-	// PDF metadata
-	console.log(data.metadata); 
-	// PDF.js version
-	// check https://mozilla.github.io/pdf.js/getting_started/
-	console.log(data.version);
-	// PDF text
-	console.log(data.text); 
-        
+pdf(dataBuffer).then((data) => {
+    // number of pages
+    console.log(data.numpages);
+    // number of rendered pages
+    console.log(data.numrender);
+    // PDF info
+    console.log(data.info);
+    // PDF metadata
+    console.log(data.metadata);
+    // PDF.js version
+    // see https://mozilla.github.io/pdf.js/getting_started/
+    console.log(data.version);
+    // PDF text
+    console.log(data.text);
 });
 ```
 
-## Basic Usage - HTTP
-You can use [crawler-request](https://www.npmjs.com/package/crawler-request) which uses the `pdf-parse`
+### ESM / TypeScript
+
+```ts
+import pdf from '@sam/pdf-parse'; // default export supported
+import { readFileSync } from 'node:fs';
+
+const buf = readFileSync('path/to/file.pdf');
+const data = await pdf(buf);
+
+console.log(data.text);
+```
+
+---
+
+## Basic Usage — HTTP
+
+You can use packages like [`crawler-request`](https://www.npmjs.com/package/crawler-request) which integrate with `pdf-parse`.
+
+---
 
 ## Exception Handling
 
 ```js
 const fs = require('fs');
-const pdf = require('pdf-parse');
+const pdf = require('@sam/pdf-parse');
 
-let dataBuffer = fs.readFileSync('path to PDF file...');
+const buf = fs.readFileSync('path/to/file.pdf');
 
-pdf(dataBuffer).then(function(data) {
-	// use data
-})
-.catch(function(error){
-	// handle exceptions
-})
+pdf(buf)
+    .then((data) => {
+        // use data
+    })
+    .catch((err) => {
+        // handle exceptions
+        console.error(err);
+    });
 ```
 
-## Extend
-* v1.0.9 and above break pagerender callback [changelog](https://gitlab.com/autokent/pdf-parse/blob/master/CHANGELOG)
-* If you need another format like json, you can change page render behaviour with a callback
-* Check out https://mozilla.github.io/pdf.js/
+---
 
-```js
-// default render callback
-function render_page(pageData) {
-    //check documents https://mozilla.github.io/pdf.js/
-    let render_options = {
-        //replaces all occurrences of whitespace with standard spaces (0x20). The default value is `false`.
-        normalizeWhitespace: false,
-        //do not attempt to combine same line TextItem's. The default value is `false`.
-        disableCombineTextItems: false
-    }
+## TypeScript
 
-    return pageData.getTextContent(render_options)
-	.then(function(textContent) {
-		let lastY, text = '';
-		for (let item of textContent.items) {
-			if (lastY == item.transform[5] || !lastY){
-				text += item.str;
-			}  
-			else{
-				text += '\n' + item.str;
-			}    
-			lastY = item.transform[5];
-		}
-		return text;
-	});
-}
+This fork bundles its own `.d.ts`. No external `@types/pdf-parse` needed.
 
-let options = {
-    pagerender: render_page
-}
+```ts
+import pdf from '@sam/pdf-parse';
 
-let dataBuffer = fs.readFileSync('path to PDF file...');
-
-pdf(dataBuffer,options).then(function(data) {
-	//use new format
-});
+const res = await pdf(Buffer.from('...'));
+res.text;       // string
+res.numpages;   // number
+res.version;    // "default" | "v1.9.426" | "v1.10.100" | "v1.10.88" | "v2.0.550"
 ```
+
+---
 
 ## Options
 
 ```js
 const DEFAULT_OPTIONS = {
-	// internal page parser callback
-	// you can set this option, if you need another format except raw text
-	pagerender: render_page,
-	
-	// max page number to parse
-	max: 0,
-	
-	//check https://mozilla.github.io/pdf.js/getting_started/
-	version: 'v1.10.100'
-}
+    // internal page parser callback
+    // set this if you need a custom output format instead of raw text
+    pagerender: render_page,
+
+    // max page number to parse (<= 0 means “all pages”)
+    max: 0,
+
+    // see https://mozilla.github.io/pdf.js/getting_started/
+    version: 'v1.10.100'
+};
 ```
-### *pagerender* (callback)
-If you need another format except raw text.  
 
-### *max* (number)
-Max number of page to parse. If the value is less than or equal to 0, parser renders all pages.  
+### `pagerender` (callback)
 
-### *version* (string, pdf.js version)
-check [pdf.js](https://mozilla.github.io/pdf.js/getting_started/)
+Customize how each page is rendered/extracted if you need structured output beyond plain text.
+
+### `max` (number)
+
+Maximum number of pages to parse. Use `0` or a negative value to parse all pages.
+
+### `version` (string, pdf.js version)
 
 * `'default'`
 * `'v1.9.426'`
@@ -136,27 +155,77 @@ check [pdf.js](https://mozilla.github.io/pdf.js/getting_started/)
 * `'v1.10.88'`
 * `'v2.0.550'`
 
->*default* version is *v1.10.100*   
->[mozilla.github.io/pdf.js](https://mozilla.github.io/pdf.js/getting_started/#download)
+> Default version is `v1.10.100`. See the [pdf.js getting started guide](https://mozilla.github.io/pdf.js/getting_started/).
 
-## Test
-* `mocha` or `npm test`
-* Check [test folder](https://gitlab.com/autokent/pdf-parse/tree/master/test) and [quickstart.js](https://gitlab.com/autokent/pdf-parse/blob/master/quickstart.js) for extra usages.
+---
 
-## Support
-I use this package actively myself, so it has my top priority. You can chat on WhatsApp about any infos, ideas and suggestions.
+## Extend — Custom `pagerender`
 
-[![WhatsApp](https://img.shields.io/badge/style-chat-green.svg?style=flat&label=whatsapp)](https://api.whatsapp.com/send?phone=905063042480&text=Hi%2C%0ALet%27s%20talk%20about%20pdf-parse)
+```js
+function render_page(pageData) {
+    // see https://mozilla.github.io/pdf.js/
+    const render_options = {
+        // replace all whitespace with standard spaces (0x20)
+        normalizeWhitespace: false,
+        // do not attempt to combine same-line TextItems
+        disableCombineTextItems: false
+    };
 
-### Submitting an Issue
-If you find a bug or a mistake, you can help by submitting an issue to [GitLab Repository](https://gitlab.com/autokent/pdf-parse/issues)
+    return pageData.getTextContent(render_options).then((textContent) => {
+        let lastY;
+        let text = '';
+        for (const item of textContent.items) {
+            if (lastY === item.transform[5] || !lastY) {
+                text += item.str;
+            } else {
+                text += '\n' + item.str;
+            }
+            lastY = item.transform[5];
+        }
+        return text;
+    });
+}
 
-### Creating a Merge Request
-GitLab calls it merge request instead of pull request.  
+const options = { pagerender: render_page };
+const dataBuffer = require('fs').readFileSync('path/to/file.pdf');
 
-* [A Guide for First-Timers](https://about.gitlab.com/2016/06/16/fearless-contribution-a-guide-for-first-timers/)
-* [How to create a merge request](https://docs.gitlab.com/ee/gitlab-basics/add-merge-request.html)
-* Check [Contributing Guide](https://gitlab.com/autokent/pdf-parse/blob/master/CONTRIBUTING.md) 
+require('@sam/pdf-parse')(dataBuffer, options).then((data) => {
+    // use custom-formatted output
+});
+```
+
+---
+
+## Similar Packages
+
+* [pdf2json](https://www.npmjs.com/package/pdf2json)
+* [j-pdfjson](https://www.npmjs.com/package/j-pdfjson)
+* [pdf-parser](https://github.com/dunso/pdf-parse)
+* [pdfreader](https://www.npmjs.com/package/pdfreader)
+* [pdf-extract](https://www.npmjs.com/package/pdf-extract)
+
+*(Different trade-offs: dependencies, maintenance, platform support, and output formats.)*
+
+---
+
+## Tests
+
+* `npm test` (runs `mocha`)
+* See the `test` directory in upstream for usage ideas; contributions adding tests here are welcome.
+
+---
+
+## Support / Issues
+
+* **Issues:** open on GitHub → [https://github.com/Cedrugs/pdf-parse/issues](https://github.com/Cedrugs/pdf-parse/issues)
+* **Discussions/PRs:** welcome!
+
+---
 
 ## License
-[MIT licensed](https://gitlab.com/autokent/pdf-parse/blob/master/LICENSE) and all it's dependencies are MIT or BSD licensed.
+
+[MIT](LICENSE)
+
+### Acknowledgements
+
+This project builds on the excellent work of the original [`pdf-parse`](https://www.npmjs.com/package/pdf-parse) and the PDF.js team.
