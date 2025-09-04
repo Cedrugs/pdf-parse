@@ -1,9 +1,9 @@
-# @sam/pdf-parse
+# @cedrugs/pdf-parse
 
 **Pure JavaScript, cross-platform PDF text & metadata extraction.**  
 A maintained fork of [`pdf-parse`](https://www.npmjs.com/package/pdf-parse) with **bundled TypeScript types**, **ESM-friendly default export**, and **Node 18+** support.
 
-[![npm](https://img.shields.io/npm/v/%40sam%2Fpdf-parse.svg)](https://www.npmjs.com/package/@sam/pdf-parse)
+[![npm](https://img.shields.io/npm/v/%40cedrugs%2Fpdf-parse.svg)](https://www.npmjs.com/package/@cedrugs/pdf-parse)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 
@@ -24,17 +24,17 @@ A maintained fork of [`pdf-parse`](https://www.npmjs.com/package/pdf-parse) with
 
 ### Option A — Use this scoped package directly
 ```bash
-npm i @sam/pdf-parse
+npm i @cedrugs/pdf-parse
 # or
-pnpm add @sam/pdf-parse
+pnpm add @cedrugs/pdf-parse
 # or
-yarn add @sam/pdf-parse
+yarn add @cedrugs/pdf-parse
 ````
 
 ### Option B — Keep the old import name via npm alias
 
 ```bash
-npm i pdf-parse@npm:@sam/pdf-parse
+npm i pdf-parse@npm:@cedrugs/pdf-parse
 ```
 
 Now `import pdf from "pdf-parse"` continues to work, but resolves to this fork.
@@ -47,7 +47,7 @@ Now `import pdf from "pdf-parse"` continues to work, but resolves to this fork.
 
 ```js
 const fs = require('fs');
-const pdf = require('@sam/pdf-parse'); // or 'pdf-parse' if using the alias
+const pdf = require('@cedrugs/pdf-parse'); // or 'pdf-parse' if using the alias
 
 const dataBuffer = fs.readFileSync('path/to/file.pdf');
 
@@ -71,7 +71,7 @@ pdf(dataBuffer).then((data) => {
 ### ESM / TypeScript
 
 ```ts
-import pdf from '@sam/pdf-parse'; // default export supported
+import pdf from '@cedrugs/pdf-parse'; // default export supported
 import { readFileSync } from 'node:fs';
 
 const buf = readFileSync('path/to/file.pdf');
@@ -92,7 +92,7 @@ You can use packages like [`crawler-request`](https://www.npmjs.com/package/craw
 
 ```js
 const fs = require('fs');
-const pdf = require('@sam/pdf-parse');
+const pdf = require('@cedrugs/pdf-parse');
 
 const buf = fs.readFileSync('path/to/file.pdf');
 
@@ -113,7 +113,7 @@ pdf(buf)
 This fork bundles its own `.d.ts`. No external `@types/pdf-parse` needed.
 
 ```ts
-import pdf from '@sam/pdf-parse';
+import pdf from '@cedrugs/pdf-parse';
 
 const res = await pdf(Buffer.from('...'));
 res.text;       // string
@@ -167,7 +167,7 @@ function render_page(pageData) {
     const render_options = {
         // replace all whitespace with standard spaces (0x20)
         normalizeWhitespace: false,
-        // do not attempt to combine same-line TextItems
+        // do not attempt to combine cedrugse-line TextItems
         disableCombineTextItems: false
     };
 
@@ -189,7 +189,7 @@ function render_page(pageData) {
 const options = { pagerender: render_page };
 const dataBuffer = require('fs').readFileSync('path/to/file.pdf');
 
-require('@sam/pdf-parse')(dataBuffer, options).then((data) => {
+require('@cedrugs/pdf-parse')(dataBuffer, options).then((data) => {
     // use custom-formatted output
 });
 ```
