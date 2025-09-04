@@ -1,5 +1,5 @@
 {
-    "name": "@sam/pdf-parse",
+    "name": "@cedrugs/pdf-parse",
     "version": "1.0.0",
     "description": "Fork of pdf-parse with fixes",
     "main": "index.js",
